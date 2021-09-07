@@ -1,12 +1,29 @@
 #!/usr/bin/env python3
 
 import socket
+import select
+import sys
 
-HOST = '127.0.0.1'
-PORT = 65432
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+if len(sys.argv) != 3:
+    print("Script, IP address, port")
+    exit()
+IP_address = str(sys.argv[1])
+Port = int(sys.argv[2])
+server.connect((IP_address, Port))
 
-with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-    s.connect((HOST, PORT))
-    s.sendall(b'Hello, World!')
-    data = s.recv(1024)
-print('Recieved', repr(data))
+while True:
+    socket_list = [sys.stdin, server]
+    read_sockets,write_socket, error_socket = select.select(socket_list, [], [])
+
+    for socks in read_sockets:
+        if socks == server:
+            message = socks.recv(2048)
+            print(message.decode())
+        else:
+            message = sys.stdin.readline()
+            server.send(message.encode())
+            sys.stdout.write("<You>")
+            sys.stdout.write(message)
+            sys.stdout.flush()
+server.close()
