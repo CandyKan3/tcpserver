@@ -5,15 +5,55 @@ import sys
 from _thread import *
 
 HOST = '127.0.0.1'
-PORT = 8080
-
+PORT = 8081
+shift = 3
+def encrypt(message):
+    encryptedm = ""
+    for m in message:
+        if m.isupper():
+            c_unicode = ord(m)
+            c_index = ord(m) - ord("A")
+            new_index = (c_index + shift) % 26
+            new_unicode = new_index + ord("A")
+            new_char = chr(new_unicode)
+            encryptedm = encryptedm + new_char
+        elif m.islower():
+            c_unicode = ord(m)
+            c_index = ord(m) - ord("a")
+            new_index = (c_index + shift) % 26
+            new_unicode = new_index + ord("a")
+            new_char = chr(new_unicode)
+            encryptedm = encryptedm + new_char
+        else:
+            encryptedm +=m
+    return encryptedm   
+def decrypt(message):
+    encryptedm = ""
+    for m in message:
+        if m.isupper():
+            c_unicode = ord(m)
+            c_index = ord(m) - ord("A")
+            new_index = (c_index - shift) % 26
+            new_unicode = new_index + ord("A")
+            new_char = chr(new_unicode)
+            encryptedm = encryptedm + new_char
+        elif m.islower():
+            c_unicode = ord(m)
+            c_index = ord(m) - ord("a")
+            new_index = (c_index - shift) % 26
+            new_unicode = new_index + ord("a")
+            new_char = chr(new_unicode)
+            encryptedm = encryptedm + new_char
+        else:
+            encryptedm +=m
+    return encryptedm 
 def clientthread(conn, addr):
-    conn.send(b"Welcome to the chatroom!")
+    conn.send(encrypt("Welcome to the chatroom!").encode())
     while True:
         try:
             message = conn.recv(2048)
             if message:
-                print("<"+ addr[0] + ">: "+ message.decode())
+                print("<"+ addr[0] + ">: "+ decrypt(message.decode()))
                 message_to_send = "<"+ addr[0] + ">"+ message.decode()
                 broadcast(message_to_send, conn)
             else:
