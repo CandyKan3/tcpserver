@@ -28,30 +28,14 @@ def encrypt(message):
             encryptedm +=m
     return encryptedm   
 def decrypt(message):
-    encryptedm = ""
-    for m in message:
-        if m.isupper():
-            c_unicode = ord(m)
-            c_index = ord(m) - ord("A")
-            new_index = (c_index - shift) % 26
-            new_unicode = new_index + ord("A")
-            new_char = chr(new_unicode)
-            encryptedm = encryptedm + new_char
-        elif m.islower():
-            c_unicode = ord(m)
-            c_index = ord(m) - ord("a")
-            new_index = (c_index - shift) % 26
-            new_unicode = new_index + ord("a")
-            new_char = chr(new_unicode)
-            encryptedm = encryptedm + new_char
-        else:
-            encryptedm +=m
+    encryptedm = message
     return encryptedm 
 def clientthread(conn, addr):
     conn.send(encrypt("Welcome to the chatroom!").encode())
     while True:
         try:
             message = conn.recv(2048)
+            print("Message here" + message.decode())
             if message:
                 print("<"+ addr[0] + ">: "+ decrypt(message.decode()))
                 message_to_send = "<"+ addr[0] + ">"+ message.decode()
@@ -82,4 +66,3 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         print(addr[0]+ "Connected")
         start_new_thread(clientthread,(conn,addr))
     conn.close()
-    server.close()
